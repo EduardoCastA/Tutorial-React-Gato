@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 function Square({ value, onSquareClick }) {
+
 	return (
 		<button className="square" onClick={onSquareClick}>
 			{value}
@@ -55,6 +56,7 @@ function Board({ xIsNext, squares, onPlay }) {
 }
 
 function calculateWinner(squares) {
+
 	const lines = [
 		[0, 1, 2],
 		[3, 4, 5],
@@ -77,10 +79,13 @@ function calculateWinner(squares) {
   }
 
 export default function Game() {
+	
 	const [history, setHistory] = useState([Array(9).fill(null)])
 	const [currentMove, setCurrentMove] = useState(0);
+	const [isAsc, setIsAsc] = useState(true);
 	const xIsNext = currentMove % 2 === 0;
 	const currentSquares = history[currentMove];
+	let order;
 
 	function handlePlay(nextSquares) {
 		const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
@@ -117,6 +122,12 @@ export default function Game() {
 		);
 	});
 
+	if(isAsc){
+		order = "Ordenar descendentemente"
+	} else {
+		order = "Ordenar ascendentemente"
+	}
+
 	return (
 		<div className="game">
 			<div className="game-board">
@@ -124,7 +135,8 @@ export default function Game() {
 			</div>
 			<div className="game-info">
 				<ol>
-					{moves}
+					<button onClick={() => setIsAsc(!isAsc)}>{order}</button>
+					{ isAsc ? moves : moves.reverse()}
 				</ol>
 			</div>
 		</div>
