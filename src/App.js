@@ -1,9 +1,14 @@
 import { useState } from 'react';
 
-function Square({ value, onSquareClick }) {
+function Square({ value, winner, onSquareClick }) {
+
+	let classes = "square";
+
+	if(winner)
+		classes += " winner";
 
 	return (
-		<button className="square" onClick={onSquareClick}>
+		<button className={classes} onClick={onSquareClick}>
 			{value}
 		</button>
 	);
@@ -12,11 +17,11 @@ function Square({ value, onSquareClick }) {
 function Board({ xIsNext, squares, onPlay }) {
 
 	const boardSquares = [];
-	const winner = calculateWinner(squares);
+	const result = calculateWinner(squares);
   	let status;
   
-	if(winner) {
-    	status = "Ganador: " + winner;
+	if(result.winner) {
+    	status = "Ganador: " + result.winner;
   	} else {
 		if(squares.includes(null)){
 			status = "Siguiente jugador: " + (xIsNext ? "X" : "O");
@@ -26,7 +31,7 @@ function Board({ xIsNext, squares, onPlay }) {
   	}
 
 	function handleClick(i) {
-		if(squares[i] || calculateWinner(squares)) {
+		if(squares[i] || calculateWinner(squares).winner) {
 			return;
 		}
 
@@ -42,7 +47,13 @@ function Board({ xIsNext, squares, onPlay }) {
 	for(let i = 0; i < 3; i++) {
 		const row = [];
 		for(let j = 0; j < 3; j++) {
-			row.push(<Square key={j + i * 3} value={squares[j + i * 3]} onSquareClick={() => handleClick(j + i * 3)} />);
+			row.push(
+				<Square key={j + i * 3} 
+						value={squares[j + i * 3]} 
+						winner={result.line ? result.line.includes(j + i * 3) : result.line} 
+						onSquareClick={() => handleClick(j + i * 3)} 
+				/>
+			);
 		}
 		boardSquares.push(<div key={i} className="board-row">{row}</div>);
 	  }
@@ -71,15 +82,21 @@ function calculateWinner(squares) {
 	for(let i = 0; i < lines.length; i++) {
 		const [a, b, c] = lines[i];
 		if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-			return squares[a];
+			return {
+				winner : squares[a],
+				line : lines[i],
+			};
 		}
 	}
 
-	return null;
+	return {
+		winner: null,
+		line: null,
+	};
   }
 
 export default function Game() {
-	
+
 	const [history, setHistory] = useState([Array(9).fill(null)])
 	const [currentMove, setCurrentMove] = useState(0);
 	const [isAsc, setIsAsc] = useState(true);
